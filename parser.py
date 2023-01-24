@@ -5,14 +5,16 @@ from bs4 import BeautifulSoup
 
 smartphone = []
 
-url = "https://shop.kz/smartfony/filter/astana-is-v_nalichii-or-ojidaem-or-dostavim/apply/?PAGEN_1=1"
+url = "https://shop.kz/smartfony/filter/astana-is-v_nalichii-or-ojidaem-or-dostavim/apply/?PAGEN_1="
 response = requests.get(url, headers=headers).text
 soup = BeautifulSoup(response, 'html5lib')
+
+
 number_of_smartphones = int(soup.find("span", {"sort__count"}).text[:-8])
 page_number = 1
 while len(smartphone) != number_of_smartphones:
-    url = "https://shop.kz/smartfony/filter/astana-is-v_nalichii-or-ojidaem-or-dostavim/apply/?PAGEN_1=" + str(page_number)
-    response = requests.get(url, headers=headers).text
+    url_smartphones = url + str(page_number)
+    response = requests.get(url_smartphones, headers=headers).text
     soup = BeautifulSoup(response, 'html5lib')
 
     all_block = soup.find_all('div', {"class": "bx_catalog_item_container gtm-impression-product"})
@@ -21,7 +23,9 @@ while len(smartphone) != number_of_smartphones:
         article = block.find('div', {"class": 'bx_catalog_item_XML_articul'}).text.strip()[9:]
         memory = name[name.find(",") + 2: name.rfind(",")]
         try:
-            price = block.find('span', {"class": 'bx-more-price-text'}).text.replace(" ", "")[:-1]
+            price_block = block.find("div", {"class": "bx-more-prices"}).text
+            price_board = price_block.find("Цена в интернет-магазине")
+            price = price_block[price_board + 24:price_board + 31].replace(" ", "")
             try:
                 price = int(price)
             except ValueError:
@@ -37,5 +41,5 @@ while len(smartphone) != number_of_smartphones:
         })
     page_number += 1
 
-with open("smartphones_json", 'w') as file:
+with open("smartphones.json", 'w') as file:
     json.dump(smartphone, file, indent=2)

@@ -3,7 +3,7 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
-with open("smartphones_json", "r") as file:
+with open("smartphones.json", "r") as file:
     smartphones_db = json.load(file)
 
 
